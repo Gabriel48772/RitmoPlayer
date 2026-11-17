@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -59,13 +60,14 @@ fun MiniPlayer(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 6.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .navigationBarsPadding()
+            .padding(start = 12.dp, end = 12.dp, bottom = 12.dp, top = 4.dp)
+            .clip(RoundedCornerShape(20.dp))
             .clickable(onClick = onExpandPlayer),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        tonalElevation = 6.dp,
-        shadowElevation = 8.dp,
-        shape = RoundedCornerShape(18.dp)
+        tonalElevation = 8.dp,
+        shadowElevation = 10.dp,
+        shape = RoundedCornerShape(20.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Linear progress indicator
@@ -81,13 +83,13 @@ fun MiniPlayer(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Vinyl / disc icon with gradient
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(46.dp)
                         .clip(CircleShape)
                         .background(
                             Brush.linearGradient(
@@ -131,19 +133,19 @@ fun MiniPlayer(
                 // Controls: Rewind (with rule feedback), Play/Pause, Next
                 IconButton(
                     onClick = onRewind,
-                    modifier = Modifier.size(38.dp)
+                    modifier = Modifier.size(42.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.FastRewind,
                         contentDescription = "Retrasar / Reiniciar",
                         tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.size(24.dp)
                     )
                 }
 
                 FilledIconButton(
                     onClick = onTogglePlayPause,
-                    modifier = Modifier.size(42.dp),
+                    modifier = Modifier.size(46.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
@@ -152,19 +154,19 @@ fun MiniPlayer(
                         imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
                         contentDescription = if (isPlaying) "Pausar" else "Reproducir",
                         tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(26.dp)
                     )
                 }
 
                 IconButton(
                     onClick = onSkipNext,
-                    modifier = Modifier.size(38.dp)
+                    modifier = Modifier.size(42.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.SkipNext,
                         contentDescription = "Siguiente",
                         tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }

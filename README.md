@@ -51,18 +51,23 @@
 
 ## 🚀 Instalación en tu Celular Android
 
-Puedes descargar el archivo instalador (.apk) de cualquiera de las siguientes dos formas:
+Puedes descargar el archivo instalador (.apk) de cualquiera de las siguientes formas:
 
 1. **Descarga Directa desde el Repositorio:**
-   - Haz clic en [**`apk/RitmoPlayer-v1.0.0.apk`**](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.0.apk) para descargarlo directamente a tu teléfono móvil.
+   - Haz clic en [**`apk/RitmoPlayer-v1.0.1.apk`** (Versión 1.0.1)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.1.apk) para descargarlo directamente a tu teléfono móvil.
 
 2. **O desde la sección de Releases:**
-   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.0.apk`**.
+   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.1.apk`**.
 
 Una vez descargado en tu teléfono móvil:
 - Toca el archivo descargado y presiona **Instalar**.
   *(Si es la primera vez que instalas un APK externo, el sistema Android te solicitará conceder permiso para instalar apps desconocidas).*
 - ¡Abre **RitmoPlayer**, autoriza el acceso a la música y disfruta de tus canciones favoritas!
+
+---
+
+### 📝 Notas de la Versión v1.0.1
+- **Ajuste de pantalla e Insets del Sistema:** Se añadió `navigationBarsPadding()` a la barra inferior de reproducción (*MiniPlayer*) y al reproductor de pantalla completa, elevando los controles para que los botones táctiles de navegación del teléfono (Atrás, Inicio, Recientes) o la barra de gestos no se superpongan ni impidan presionar Pausa, Adelantar, Retrasar o Siguiente.
 
 ---
 
