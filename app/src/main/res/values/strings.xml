@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">RitmoPlayer</string>
+    <string name="music_player">Reproductor de Música</string>
+    <string name="all_songs">Todas las canciones</string>
+    <string name="folders">Carpetas</string>
+    <string name="select_folder">Seleccionar ubicación</string>
+    <string name="choose_folder_prompt">Elige una carpeta donde esté tu música</string>
+    <string name="shuffle">Aleatorio</string>
+    <string name="repeat">Repetir</string>
+    <string name="repeat_one">Repetir actual</string>
+    <string name="repeat_all">Repetir lista</string>
+    <string name="repeat_off">Repetición apagada</string>
+    <string name="rewind">Retrasar</string>
+    <string name="fast_forward">Adelantar</string>
+    <string name="play">Reproducir</string>
+    <string name="pause">Pausar</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Siguiente</string>
+    <string name="check_updates">Buscar actualizaciones</string>
+    <string name="update_available">¡Nueva versión disponible!</string>
+    <string name="update_now">Actualizar</string>
+    <string name="restarted_from_beginning">Reiniciando desde el inicio (superó la mitad)</string>
+    <string name="no_songs_found">No se encontraron archivos de audio</string>
+    <string name="sort_by_date_modified">Fecha de modificación (más reciente)</string>
+    <string name="sort_by_title">Título (A-Z)</string>
+    <string name="sort_by_artist">Artista</string>
+    <string name="permission_required">Se requiere permiso para leer tu música</string>
+    <string name="grant_permission">Conceder permiso</string>
+</resources>

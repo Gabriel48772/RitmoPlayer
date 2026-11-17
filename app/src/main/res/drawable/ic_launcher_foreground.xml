@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Glowing vinyl disc / circular badge -->
+    <path
+        android:pathData="M54,54m-26,0a26,26 0,1 1,52 0a26,26 0,1 1,-52 0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:angle="45"
+                android:endColor="#1E1B4B"
+                android:startColor="#0F172A"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+
+    <!-- Outer disc neon ring -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M54,54m-26,0a26,26 0,1 1,52 0a26,26 0,1 1,-52 0"
+        android:strokeWidth="2.5">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:angle="0"
+                android:endColor="#A855F7"
+                android:startColor="#06B6D4"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+
+    <!-- Headphone arch over the disc -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M31,56 C31,39 40,28 54,28 C68,28 77,39 77,56"
+        android:strokeLineCap="round"
+        android:strokeWidth="4.5">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:angle="0"
+                android:endColor="#C084FC"
+                android:startColor="#38BDF8"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+
+    <!-- Left ear cup -->
+    <path
+        android:pathData="M27,51 C27,48 33,48 33,51 L33,63 C33,66 27,66 27,63 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:angle="90"
+                android:endColor="#38BDF8"
+                android:startColor="#0284C7"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+
+    <!-- Right ear cup -->
+    <path
+        android:pathData="M75,51 C75,48 81,48 81,51 L81,63 C81,66 75,66 75,63 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:angle="90"
+                android:endColor="#C084FC"
+                android:startColor="#9333EA"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+
+    <!-- Music Equalizer Bars at bottom of center -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M43,62 L45,62 L45,67 L43,67 Z" />
+    <path
+        android:fillColor="#818CF8"
+        android:pathData="M48,59 L50,59 L50,67 L48,67 Z" />
+    <path
+        android:fillColor="#A855F7"
+        android:pathData="M53,56 L55,56 L55,67 L53,67 Z" />
+    <path
+        android:fillColor="#C084FC"
+        android:pathData="M58,58 L60,58 L60,67 L58,67 Z" />
+    <path
+        android:fillColor="#F472B6"
+        android:pathData="M63,61 L65,61 L65,67 L63,67 Z" />
+
+    <!-- Iconic Play Triangle in Center -->
+    <path
+        android:pathData="M50,43 L63,51 L50,59 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:angle="45"
+                android:endColor="#E879F9"
+                android:startColor="#38BDF8"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+
+</vector>
