@@ -51,11 +51,18 @@
 
 ## 🚀 Instalación en tu Celular Android
 
-1. Ve a la sección de **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** de este repositorio.
-2. Descarga el archivo **`RitmoPlayer-v1.0.0.apk`** (o la versión más reciente).
-3. Ábrelo en tu teléfono móvil y pulsa **Instalar**.
-   *(Si es la primera vez que instalas un APK externo, el sistema te pedirá permitir la instalación desde el navegador o gestor de archivos).*
-4. ¡Abre **RitmoPlayer**, concede el permiso para leer música y disfruta de tus canciones favoritas!
+Puedes descargar el archivo instalador (.apk) de cualquiera de las siguientes dos formas:
+
+1. **Descarga Directa desde el Repositorio:**
+   - Haz clic en [**`apk/RitmoPlayer-v1.0.0.apk`**](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.0.apk) para descargarlo directamente a tu teléfono móvil.
+
+2. **O desde la sección de Releases:**
+   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.0.apk`**.
+
+Una vez descargado en tu teléfono móvil:
+- Toca el archivo descargado y presiona **Instalar**.
+  *(Si es la primera vez que instalas un APK externo, el sistema Android te solicitará conceder permiso para instalar apps desconocidas).*
+- ¡Abre **RitmoPlayer**, autoriza el acceso a la música y disfruta de tus canciones favoritas!
 
 ---
 
