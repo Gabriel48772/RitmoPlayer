@@ -17,9 +17,12 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.CreateNewFolder
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.FolderSpecial
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,7 +40,9 @@ import androidx.compose.ui.unit.sp
 fun FolderSelectorDialog(
     folders: List<String>,
     selectedFolder: String?,
+    favoriteFolder: String?,
     onFolderSelected: (String?) -> Unit,
+    onToggleFavorite: (String) -> Unit,
     onPickCustomFolder: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -52,7 +58,7 @@ fun FolderSelectorDialog(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Ubicación de Música",
+                    text = "Carpetas de Música",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             }
@@ -60,7 +66,7 @@ fun FolderSelectorDialog(
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Selecciona de dónde deseas cargar y reproducir tus canciones:",
+                    text = "Selecciona la carpeta a escuchar. Se mantendrá guardada como tu carpeta favorita para reproducir todas sus canciones continuamente.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -73,7 +79,9 @@ fun FolderSelectorDialog(
                         FolderItemRow(
                             name = "Todas las canciones del teléfono",
                             isSelected = selectedFolder == null,
+                            isFavorite = false,
                             icon = Icons.Rounded.FolderSpecial,
+                            onToggleFavorite = null,
                             onClick = {
                                 onFolderSelected(null)
                                 onDismiss()
@@ -87,7 +95,9 @@ fun FolderSelectorDialog(
                         FolderItemRow(
                             name = folder,
                             isSelected = selectedFolder == folder,
+                            isFavorite = favoriteFolder == folder,
                             icon = Icons.Rounded.Folder,
+                            onToggleFavorite = { onToggleFavorite(folder) },
                             onClick = {
                                 onFolderSelected(folder)
                                 onDismiss()
@@ -99,10 +109,12 @@ fun FolderSelectorDialog(
                     item {
                         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                         FolderItemRow(
-                            name = "Examinar y seleccionar otra carpeta...",
+                            name = "Examinar otra carpeta en el almacenamiento...",
                             isSelected = false,
+                            isFavorite = false,
                             icon = Icons.Rounded.CreateNewFolder,
                             isAction = true,
+                            onToggleFavorite = null,
                             onClick = {
                                 onDismiss()
                                 onPickCustomFolder()
@@ -124,21 +136,23 @@ fun FolderSelectorDialog(
 private fun FolderItemRow(
     name: String,
     isSelected: Boolean,
+    isFavorite: Boolean,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     isAction: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null,
     onClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(10.dp))
             .clickable(onClick = onClick),
         color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 10.dp),
+                .padding(horizontal = 10.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -160,7 +174,22 @@ private fun FolderItemRow(
                 modifier = Modifier.weight(1f)
             )
 
+            if (onToggleFavorite != null) {
+                IconButton(
+                    onClick = onToggleFavorite,
+                    modifier = Modifier.size(28.dp)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Rounded.Star else Icons.Rounded.StarOutline,
+                        contentDescription = "Favorita",
+                        tint = if (isFavorite) Color(0xFFF59E0B) else MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
             if (isSelected) {
+                Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.Rounded.Check,
                     contentDescription = "Seleccionado",

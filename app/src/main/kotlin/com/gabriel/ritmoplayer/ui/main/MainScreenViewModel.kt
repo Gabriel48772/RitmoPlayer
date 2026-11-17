@@ -25,6 +25,9 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
     private val audioScanner = ritmoApp.audioScanner
     val updateManager = ritmoApp.updateManager
 
+    private val prefs = application.getSharedPreferences("ritmo_prefs", Context.MODE_PRIVATE)
+    private val KEY_FAVORITE_FOLDER = "favorite_folder"
+
     private val _allTracks = MutableStateFlow<List<AudioTrack>>(emptyList())
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -35,7 +38,11 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
     private val _sortOrder = MutableStateFlow(SortOrder.DATE_MODIFIED_DESC)
     val sortOrder: StateFlow<SortOrder> = _sortOrder.asStateFlow()
 
-    private val _selectedFolder = MutableStateFlow<String?>(null)
+    // Persistent favorite folder
+    private val _favoriteFolder = MutableStateFlow<String?>(prefs.getString(KEY_FAVORITE_FOLDER, null))
+    val favoriteFolder: StateFlow<String?> = _favoriteFolder.asStateFlow()
+
+    private val _selectedFolder = MutableStateFlow<String?>(prefs.getString(KEY_FAVORITE_FOLDER, null))
     val selectedFolder: StateFlow<String?> = _selectedFolder.asStateFlow()
 
     private val _folders = MutableStateFlow<List<String>>(emptyList())
@@ -117,8 +124,14 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
                 _allTracks.value = tracks
                 _folders.value = tracks.map { it.folderName }.distinct().sorted()
 
-                if (playbackManager.playlist.value.isEmpty() && tracks.isNotEmpty()) {
-                    playbackManager.setPlaylist(tracks)
+                val fav = _favoriteFolder.value
+                if (fav != null && _folders.value.contains(fav)) {
+                    _selectedFolder.value = fav
+                }
+
+                val currentDisplay = displayedTracks.value
+                if (playbackManager.playlist.value.isEmpty() && currentDisplay.isNotEmpty()) {
+                    playbackManager.setPlaylist(currentDisplay)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -136,7 +149,8 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
                 if (tracks.isNotEmpty()) {
                     _allTracks.value = tracks
                     _folders.value = tracks.map { it.folderName }.distinct().sorted()
-                    _selectedFolder.value = tracks.firstOrNull()?.folderName
+                    val folderName = tracks.firstOrNull()?.folderName
+                    selectFolder(folderName, setAsFavorite = true)
                     playbackManager.setPlaylist(tracks, tracks.firstOrNull())
                 }
             } catch (e: Exception) {
@@ -147,6 +161,10 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    /**
+     * Continuous sequential playback: sets the entire playlist from the selected folder
+     * so ExoPlayer keeps playing song by song until the end and loops.
+     */
     fun playTrack(track: AudioTrack) {
         val currentList = displayedTracks.value
         playbackManager.setPlaylist(currentList, track)
@@ -160,8 +178,27 @@ class MainScreenViewModel(application: Application) : AndroidViewModel(applicati
         _sortOrder.value = order
     }
 
-    fun selectFolder(folder: String?) {
+    fun selectFolder(folder: String?, setAsFavorite: Boolean = true) {
         _selectedFolder.value = folder
+        if (setAsFavorite) {
+            _favoriteFolder.value = folder
+            if (folder != null) {
+                prefs.edit().putString(KEY_FAVORITE_FOLDER, folder).apply()
+            } else {
+                prefs.edit().remove(KEY_FAVORITE_FOLDER).apply()
+            }
+        }
+    }
+
+    fun toggleFavoriteFolder(folder: String) {
+        if (_favoriteFolder.value == folder) {
+            _favoriteFolder.value = null
+            prefs.edit().remove(KEY_FAVORITE_FOLDER).apply()
+        } else {
+            _favoriteFolder.value = folder
+            _selectedFolder.value = folder
+            prefs.edit().putString(KEY_FAVORITE_FOLDER, folder).apply()
+        }
     }
 
     fun dismissRewindNotice() {

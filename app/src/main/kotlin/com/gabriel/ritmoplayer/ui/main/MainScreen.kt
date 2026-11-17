@@ -26,13 +26,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.GraphicEq
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Sort
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -71,7 +71,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.gabriel.ritmoplayer.model.RepeatMode
 import com.gabriel.ritmoplayer.model.SortOrder
 import com.gabriel.ritmoplayer.ui.components.FolderSelectorDialog
 import com.gabriel.ritmoplayer.ui.components.FullPlayerBottomSheet
@@ -93,6 +92,7 @@ fun MainScreen(
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
     val selectedFolder by viewModel.selectedFolder.collectAsStateWithLifecycle()
+    val favoriteFolder by viewModel.favoriteFolder.collectAsStateWithLifecycle()
     val folders by viewModel.folders.collectAsStateWithLifecycle()
     val rewindNotice by viewModel.rewindNotice.collectAsStateWithLifecycle()
 
@@ -133,24 +133,30 @@ fun MainScreen(
         }
     }
 
-    // Permission Launcher
-    var hasPermission by remember { mutableStateOf(false) }
+    // Permission Launcher for Audio & Notifications (Android 13+)
     val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        hasPermission = granted
-        if (granted) {
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val audioGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions[Manifest.permission.READ_MEDIA_AUDIO] ?: false
+        } else {
+            permissions[Manifest.permission.READ_EXTERNAL_STORAGE] ?: false
+        }
+        if (audioGranted) {
             viewModel.loadMusic()
         }
     }
 
     LaunchedEffect(Unit) {
-        val requiredPerm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.READ_MEDIA_AUDIO
-        } else {
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        }
-        permissionLauncher.launch(requiredPerm)
+        val perms = buildList {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                add(Manifest.permission.READ_MEDIA_AUDIO)
+                add(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }.toTypedArray()
+        permissionLauncher.launch(perms)
     }
 
     LaunchedEffect(updateMessage) {
@@ -216,7 +222,7 @@ fun MainScreen(
                     Box {
                         IconButton(onClick = { showSortMenu = true }) {
                             Icon(
-                                imageVector = Icons.Rounded.Sort,
+                                imageVector = Icons.AutoMirrored.Rounded.Sort,
                                 contentDescription = "Ordenar"
                             )
                         }
@@ -265,7 +271,7 @@ fun MainScreen(
             )
         },
         bottomBar = {
-            // Persistent Mini-Player at bottom
+            // Persistent Mini-Player with navigation bar safe padding
             MiniPlayer(
                 currentTrack = currentTrack,
                 isPlaying = isPlaying,
@@ -315,7 +321,7 @@ fun MainScreen(
                 )
             }
 
-            // Folder Filter Pill Indicator (if active)
+            // Folder Filter & Favorite Indicator Pill
             if (selectedFolder != null) {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
@@ -326,16 +332,17 @@ fun MainScreen(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val isFav = selectedFolder == favoriteFolder
                         Icon(
-                            imageVector = Icons.Rounded.Folder,
+                            imageVector = if (isFav) Icons.Rounded.Star else Icons.Rounded.Folder,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            tint = if (isFav) Color(0xFFF59E0B) else MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Carpeta: $selectedFolder",
-                            style = MaterialTheme.typography.labelMedium,
+                            text = if (isFav) "Carpeta favorita: $selectedFolder" else "Carpeta: $selectedFolder",
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -345,7 +352,7 @@ fun MainScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.Clear,
-                                contentDescription = "Quitar filtro",
+                                contentDescription = "Mostrar todas las canciones",
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.size(14.dp)
                             )
@@ -363,7 +370,7 @@ fun MainScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${tracks.size} canciones",
+                    text = "${tracks.size} canciones (Reproducción continua)",
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -467,7 +474,9 @@ fun MainScreen(
         FolderSelectorDialog(
             folders = folders,
             selectedFolder = selectedFolder,
-            onFolderSelected = { folder -> viewModel.selectFolder(folder) },
+            favoriteFolder = favoriteFolder,
+            onFolderSelected = { folder -> viewModel.selectFolder(folder, setAsFavorite = true) },
+            onToggleFavorite = { folder -> viewModel.toggleFavoriteFolder(folder) },
             onPickCustomFolder = { openDocumentTreeLauncher.launch(null) },
             onDismiss = { showFolderDialog = false }
         )

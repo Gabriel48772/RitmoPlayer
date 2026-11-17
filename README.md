@@ -54,20 +54,31 @@
 Puedes descargar el archivo instalador (.apk) de cualquiera de las siguientes formas:
 
 1. **Descarga Directa desde el Repositorio:**
-   - Haz clic en [**`apk/RitmoPlayer-v1.0.1.apk`** (Versión 1.0.1)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.1.apk) para descargarlo directamente a tu teléfono móvil.
+   - Haz clic en [**`apk/RitmoPlayer-v1.0.2.apk`** (Versión 1.0.2)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.2.apk) para descargarlo directamente a tu teléfono móvil.
 
 2. **O desde la sección de Releases:**
-   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.1.apk`**.
+   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.2.apk`**.
 
 Una vez descargado en tu teléfono móvil:
 - Toca el archivo descargado y presiona **Instalar**.
   *(Si es la primera vez que instalas un APK externo, el sistema Android te solicitará conceder permiso para instalar apps desconocidas).*
-- ¡Abre **RitmoPlayer**, autoriza el acceso a la música y disfruta de tus canciones favoritas!
+- ¡Abre **RitmoPlayer**, autoriza el acceso a la música y las notificaciones para disfrutar de tus canciones favoritas!
+
+---
+
+### 📝 Notas de la Versión v1.0.2
+- 🔔 **Reproductor en las Notificaciones de Android:**
+  - Se implementó el servicio en primer plano con `DefaultMediaNotificationProvider` y canal de notificación dedicado.
+  - La barra de notificaciones y la pantalla de bloqueo muestran la canción en reproducción, el artista, la barra interactiva de progreso temporal y los botones para **Pausar**, **Retrasar (-10s)**, **Adelantar (+10s)**, **Anterior** y **Siguiente**.
+- ⭐ **Carpeta Favorita Persistente:**
+  - Al seleccionar una carpeta para escuchar música, la app la recuerda y la mantiene guardada como tu carpeta favorita (con indicador de estrella ⭐) incluso después de cerrar y volver a abrir la aplicación.
+- 🔁 **Reproducción Continua de la Carpeta:**
+  - Al reproducir canciones de la carpeta elegida, continúa automáticamente canción tras canción sin detenerse hasta llegar a la última y reiniciar el ciclo continuamente.
 
 ---
 
 ### 📝 Notas de la Versión v1.0.1
-- **Ajuste de pantalla e Insets del Sistema:** Se añadió `navigationBarsPadding()` a la barra inferior de reproducción (*MiniPlayer*) y al reproductor de pantalla completa, elevando los controles para que los botones táctiles de navegación del teléfono (Atrás, Inicio, Recientes) o la barra de gestos no se superpongan ni impidan presionar Pausa, Adelantar, Retrasar o Siguiente.
+- **Ajuste de pantalla e Insets del Sistema:** Se añadió `navigationBarsPadding()` a la barra inferior de reproducción (*MiniPlayer*) y al reproductor de pantalla completa, elevando los controles para que los botones táctiles de navegación del teléfono no interfieran con la barra de música.
 
 ---
 
