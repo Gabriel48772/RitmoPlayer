@@ -37,15 +37,11 @@
             </intent-filter>
         </activity>
 
-        <!-- Background Music Service for ExoPlayer / MediaSession -->
+        <!-- Background Music Service for ExoPlayer -->
         <service
             android:name=".service.MusicService"
-            android:exported="true"
-            android:foregroundServiceType="mediaPlayback">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaSessionService" />
-            </intent-filter>
-        </service>
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
 
         <!-- FileProvider for installing downloaded APK updates from GitHub -->
         <provider

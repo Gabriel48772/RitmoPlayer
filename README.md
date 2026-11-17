@@ -54,15 +54,28 @@
 Puedes descargar el archivo instalador (.apk) de cualquiera de las siguientes formas:
 
 1. **Descarga Directa desde el Repositorio:**
-   - Haz clic en [**`apk/RitmoPlayer-v1.0.2.apk`** (Versión 1.0.2)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.2.apk) para descargarlo directamente a tu teléfono móvil.
+   - Haz clic en [**`apk/RitmoPlayer-v1.0.3.apk`** (Versión 1.0.3)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.3.apk) para descargarlo directamente a tu teléfono móvil.
 
 2. **O desde la sección de Releases:**
-   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.2.apk`**.
+   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.3.apk`**.
 
 Una vez descargado en tu teléfono móvil:
-- Toca el archivo descargado y presiona **Instalar**.
+- Toca el archivo descargado y presiona **Instalar** (o actualizar).
   *(Si es la primera vez que instalas un APK externo, el sistema Android te solicitará conceder permiso para instalar apps desconocidas).*
 - ¡Abre **RitmoPlayer**, autoriza el acceso a la música y las notificaciones para disfrutar de tus canciones favoritas!
+
+---
+
+### 📝 Notas de la Versión v1.0.3
+- 🛠️ **Solución al Cierre Inesperado (Crash) al reproducir:**
+  - Se desacopló el servicio de segundo plano a un `MusicService` dedicado con arranque inmediato en primer plano (`startForeground`), evitando el límite de tiempo de 5 segundos de Android 12+.
+  - Se crearon iconos vectoriales monocromáticos compatibles al 100% con el sistema de notificaciones de Android, previniendo excepciones de visualización en la barra de estado.
+- 🔔 **Reproductor en las Notificaciones de Android:**
+  - Muestra título, artista y barra de progreso continua en tiempo real.
+  - Controles integrados: Pausa/Reanudar, Retrasar (-10s / Reinicio si ≥ 50%), Adelantar (+10s) y Siguiente canción.
+- ⭐ **Carpeta Favorita y Reproducción Continua:**
+  - Selección persistente de carpeta preferida.
+  - Al terminar una canción, pasa automáticamente a la siguiente de la carpeta o lista seleccionada.
 
 ---
 

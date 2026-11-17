@@ -2,8 +2,6 @@ package com.gabriel.ritmoplayer.player
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import androidx.core.content.ContextCompat
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -45,7 +43,6 @@ class MusicPlaybackManager(private val context: Context) {
             .setSeekForwardIncrementMs(10_000)
             .build().apply {
                 addListener(playerListener)
-                // Default to repeat all so continuous playback across the folder works seamlessly
                 repeatMode = Player.REPEAT_MODE_ALL
             }
     }
@@ -77,8 +74,8 @@ class MusicPlaybackManager(private val context: Context) {
     private val playerListener = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             _isPlaying.value = isPlaying
+            MusicService.startOrUpdate(context)
             if (isPlaying) {
-                startServiceIfNeeded()
                 startProgressTracker()
             } else {
                 stopProgressTracker()
@@ -89,15 +86,16 @@ class MusicPlaybackManager(private val context: Context) {
             when (playbackState) {
                 Player.STATE_READY -> {
                     _duration.value = exoPlayer.duration.coerceAtLeast(0L)
+                    MusicService.startOrUpdate(context)
                 }
                 Player.STATE_ENDED -> {
-                    // Continuous sequential playback: if last song ends, loop to the first song in the folder
                     if (_playlist.value.isNotEmpty()) {
                         exoPlayer.seekTo(0, 0L)
                         exoPlayer.play()
                     } else {
                         _isPlaying.value = false
                         stopProgressTracker()
+                        MusicService.startOrUpdate(context)
                     }
                 }
                 else -> Unit
@@ -110,22 +108,7 @@ class MusicPlaybackManager(private val context: Context) {
             _currentTrack.value = track
             _currentPosition.value = 0L
             _duration.value = exoPlayer.duration.coerceAtLeast(0L)
-            if (exoPlayer.isPlaying) {
-                startServiceIfNeeded()
-            }
-        }
-    }
-
-    private fun startServiceIfNeeded() {
-        try {
-            val intent = Intent(context, MusicService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                ContextCompat.startForegroundService(context, intent)
-            } else {
-                context.startService(intent)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+            MusicService.startOrUpdate(context)
         }
     }
 
@@ -156,8 +139,8 @@ class MusicPlaybackManager(private val context: Context) {
         exoPlayer.prepare()
         if (startTrack != null) {
             _currentTrack.value = startTrack
-            startServiceIfNeeded()
             exoPlayer.play()
+            MusicService.startOrUpdate(context)
         }
     }
 
@@ -166,8 +149,8 @@ class MusicPlaybackManager(private val context: Context) {
         if (index >= 0) {
             exoPlayer.seekTo(index, 0L)
             _currentTrack.value = track
-            startServiceIfNeeded()
             exoPlayer.play()
+            MusicService.startOrUpdate(context)
         } else {
             setPlaylist(listOf(track), track)
         }
@@ -180,9 +163,9 @@ class MusicPlaybackManager(private val context: Context) {
             if (exoPlayer.playbackState == Player.STATE_ENDED) {
                 exoPlayer.seekTo(0L)
             }
-            startServiceIfNeeded()
             exoPlayer.play()
         }
+        MusicService.startOrUpdate(context)
     }
 
     /**
@@ -194,18 +177,16 @@ class MusicPlaybackManager(private val context: Context) {
         val current = exoPlayer.currentPosition
         val total = exoPlayer.duration
         if (total > 0 && current >= (total / 2)) {
-            // Ya superó la mitad: reiniciar la misma música desde el inicio
             exoPlayer.seekTo(0L)
-            startServiceIfNeeded()
             exoPlayer.play()
             _currentPosition.value = 0L
             _rewindRestartNotice.tryEmit("Reiniciando desde el inicio (va más del 50%)")
         } else {
-            // Menos de la mitad: retrasar 10 segundos
             val target = (current - 10_000L).coerceAtLeast(0L)
             exoPlayer.seekTo(target)
             _currentPosition.value = target
         }
+        MusicService.startOrUpdate(context)
     }
 
     fun fastForward() {
@@ -218,18 +199,18 @@ class MusicPlaybackManager(private val context: Context) {
         }
         exoPlayer.seekTo(target)
         _currentPosition.value = target
+        MusicService.startOrUpdate(context)
     }
 
     fun skipToPrevious() {
         val current = exoPlayer.currentPosition
         val total = exoPlayer.duration
-        // Si va por la mitad o más, la regla también aplica: reiniciar desde el principio
         if (total > 0 && current >= (total / 2)) {
             exoPlayer.seekTo(0L)
-            startServiceIfNeeded()
             exoPlayer.play()
             _currentPosition.value = 0L
             _rewindRestartNotice.tryEmit("Reiniciando desde el inicio (va más del 50%)")
+            MusicService.startOrUpdate(context)
             return
         }
 
@@ -238,21 +219,19 @@ class MusicPlaybackManager(private val context: Context) {
         } else {
             exoPlayer.seekTo(0L)
         }
-        startServiceIfNeeded()
         exoPlayer.play()
+        MusicService.startOrUpdate(context)
     }
 
     fun skipToNext() {
         if (exoPlayer.hasNextMediaItem()) {
             exoPlayer.seekToNextMediaItem()
-            startServiceIfNeeded()
             exoPlayer.play()
         } else if (_playlist.value.isNotEmpty()) {
-            // End of folder playlist: restart from first song for continuous loop
             exoPlayer.seekTo(0, 0L)
-            startServiceIfNeeded()
             exoPlayer.play()
         }
+        MusicService.startOrUpdate(context)
     }
 
     fun seekTo(positionMs: Long) {
@@ -260,6 +239,7 @@ class MusicPlaybackManager(private val context: Context) {
         val validPos = if (total > 0) positionMs.coerceIn(0L, total) else positionMs.coerceAtLeast(0L)
         exoPlayer.seekTo(validPos)
         _currentPosition.value = validPos
+        MusicService.startOrUpdate(context)
     }
 
     fun toggleShuffle() {
@@ -285,10 +265,16 @@ class MusicPlaybackManager(private val context: Context) {
     private fun startProgressTracker() {
         stopProgressTracker()
         progressJob = scope.launch {
+            var tick = 0
             while (isActive && exoPlayer.isPlaying) {
                 _currentPosition.value = exoPlayer.currentPosition
                 _duration.value = exoPlayer.duration.coerceAtLeast(0L)
-                delay(400) // 400ms is battery-friendly while smooth enough for seekbar
+                tick++
+                // Update notification progress every 2 seconds
+                if (tick % 5 == 0) {
+                    MusicService.startOrUpdate(context)
+                }
+                delay(400)
             }
         }
     }
@@ -300,6 +286,12 @@ class MusicPlaybackManager(private val context: Context) {
 
     fun release() {
         stopProgressTracker()
+        try {
+            val intent = Intent(context, MusicService::class.java).apply {
+                action = MusicService.ACTION_STOP
+            }
+            context.startService(intent)
+        } catch (_: Exception) {}
         exoPlayer.removeListener(playerListener)
         exoPlayer.release()
     }

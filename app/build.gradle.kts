@@ -11,8 +11,8 @@ android {
     applicationId = "com.gabriel.ritmoplayer"
     minSdk = 24
     targetSdk = 35
-    versionCode = 3
-    versionName = "1.0.2"
+    versionCode = 4
+    versionName = "1.0.3"
   }
 
   buildTypes {
@@ -68,6 +68,7 @@ dependencies {
   implementation(libs.androidx.media3.exoplayer)
   implementation(libs.androidx.media3.session)
   implementation(libs.androidx.media3.common)
+  implementation(libs.androidx.media)
 
   // DocumentFile for SAF folder picking
   implementation(libs.androidx.documentfile)
