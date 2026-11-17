@@ -41,6 +41,12 @@
   - **Controles**: Pausar, Reproducir, Adelantar (+10s), Retrasar (-10s / Reiniciar), Siguiente y Anterior.
   - Barra de búsqueda instantánea para encontrar cualquier tema en milisegundos.
 
+- 📱 **Widgets para la Pantalla Principal (Home Screen)**:
+  - **Barra Compacta (4x1)**: Control minimalista y elegante con disco de vinilo, título, artista y botones de retroceso, reproducir/pausar y siguiente.
+  - **Tarjeta Completa (4x2)**: Reproductor extendido con carátula de vinilo, carpeta activa, barra de progreso en vivo, indicador de estado y controles extendidos (retroceso, play/pausa, adelantar +10s, siguiente).
+  - **Vinilo Rápido (2x2)**: Estilo disco de vinilo clásico para reproducir o pausar en un toque con controles de navegación rápida.
+  - Al pulsar sobre el nombre o carátula de cualquier widget, se abre la aplicación al instante.
+
 - 🎨 **Logotipo e Icono Distintivo**:
   - Icono adaptativo moderno con diseño de auriculares holográficos de neón, ecualizador dinámico y el símbolo universal de *Play*, fácilmente identificable en la pantalla de inicio de tu celular.
 
@@ -56,15 +62,25 @@
 Puedes descargar el archivo instalador (.apk) de cualquiera de las siguientes formas:
 
 1. **Descarga Directa desde el Repositorio:**
-   - Haz clic en [**`apk/RitmoPlayer-v1.0.4.apk`** (Versión 1.0.4)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.4.apk) para descargarlo directamente a tu teléfono móvil.
+   - Haz clic en [**`apk/RitmoPlayer-v1.0.5.apk`** (Versión 1.0.5)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.5.apk) para descargarlo directamente a tu teléfono móvil.
 
 2. **O desde la sección de Releases:**
-   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.4.apk`**.
+   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.5.apk`**.
 
 Una vez descargado en tu teléfono móvil:
 - Toca el archivo descargado y presiona **Instalar** (o actualizar).
   *(Si es la primera vez que instalas un APK externo, el sistema Android te solicitará conceder permiso para instalar apps desconocidas).*
 - ¡Abre **RitmoPlayer**, autoriza el acceso a la música y las notificaciones para disfrutar de tus canciones favoritas!
+
+---
+
+### 📝 Notas de la Versión v1.0.5
+- 📱 **Widgets para la Pantalla de Inicio de Android:**
+  - **Barra Compacta (4x1)**: Acceso rápido con diseño de píldora oscura translúcida, carátula de disco, datos de la canción y controles esenciales.
+  - **Tarjeta Completa (4x2)**: Estilo reproductor moderno con disco de vinilo, nombre de la carpeta en reproducción, barra de progreso sincronizada, indicador de estado y controles completos.
+  - **Vinilo Rápido (2x2)**: Widget cuadrado/circular con aspecto de tornamesa y botón central para pausar/reproducir rápidamente.
+  - Sincronización en tiempo real con la reproducción y la notificación del sistema.
+  - Si el reproductor está detenido, al pulsar reproducir desde el widget inicia automáticamente la música de tu teléfono.
 
 ---
 

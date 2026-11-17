@@ -164,6 +164,19 @@ class MusicPlaybackManager(private val context: Context) {
         if (exoPlayer.isPlaying) {
             exoPlayer.pause()
         } else {
+            if (_playlist.value.isEmpty()) {
+                scope.launch {
+                    try {
+                        val tracks = com.gabriel.ritmoplayer.scanner.AudioScanner(context).scanMediaStore()
+                        if (tracks.isNotEmpty()) {
+                            setPlaylist(tracks, tracks.first())
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                return
+            }
             if (exoPlayer.playbackState == Player.STATE_ENDED) {
                 exoPlayer.seekTo(0L)
             }

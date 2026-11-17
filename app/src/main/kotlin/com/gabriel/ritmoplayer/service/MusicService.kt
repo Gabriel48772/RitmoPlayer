@@ -15,6 +15,7 @@ import com.gabriel.ritmoplayer.MainActivity
 import com.gabriel.ritmoplayer.R
 import com.gabriel.ritmoplayer.RitmoApplication
 import com.gabriel.ritmoplayer.model.AudioTrack
+import com.gabriel.ritmoplayer.widget.RitmoWidgetManager
 
 class MusicService : Service() {
 
@@ -65,6 +66,7 @@ class MusicService : Service() {
             ACTION_PREV -> playback?.skipToPrevious()
             ACTION_STOP -> {
                 playback?.exoPlayer?.pause()
+                RitmoWidgetManager.updateAllWidgets(this, null, false, 0L, 0L)
                 stopForegroundService()
                 return START_NOT_STICKY
             }
@@ -74,6 +76,9 @@ class MusicService : Service() {
         val isPlaying = playback?.isPlaying?.value ?: false
         val currentPosition = playback?.currentPosition?.value ?: 0L
         val duration = playback?.duration?.value ?: 0L
+
+        // Update home screen widgets in real time
+        RitmoWidgetManager.updateAllWidgets(this, track, isPlaying, currentPosition, duration)
 
         val notification = buildNotification(track, isPlaying, currentPosition, duration)
 

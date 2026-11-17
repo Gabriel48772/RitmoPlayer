@@ -54,6 +54,45 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- Compact Bar AppWidget (4x1) -->
+        <receiver
+            android:name=".widget.RitmoCompactWidgetProvider"
+            android:label="@string/widget_compact_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_compact_info" />
+        </receiver>
+
+        <!-- Card AppWidget (4x2) -->
+        <receiver
+            android:name=".widget.RitmoCardWidgetProvider"
+            android:label="@string/widget_card_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_card_info" />
+        </receiver>
+
+        <!-- Circle Vinyl AppWidget (2x2) -->
+        <receiver
+            android:name=".widget.RitmoCircleWidgetProvider"
+            android:label="@string/widget_circle_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_circle_info" />
+        </receiver>
+
     </application>
 
 </manifest>

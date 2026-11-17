@@ -26,4 +26,12 @@
     <string name="sort_by_artist">Artista</string>
     <string name="permission_required">Se requiere permiso para leer tu música</string>
     <string name="grant_permission">Conceder permiso</string>
+
+    <!-- App Widgets -->
+    <string name="widget_compact_name">Ritmo - Barra Compacta (4x1)</string>
+    <string name="widget_compact_desc">Control rápido y minimalista de tu música</string>
+    <string name="widget_card_name">Ritmo - Tarjeta Completa (4x2)</string>
+    <string name="widget_card_desc">Reproductor elegante con disco de vinilo, carpeta y controles extendidos</string>
+    <string name="widget_circle_name">Ritmo - Vinilo Rápido (2x2)</string>
+    <string name="widget_circle_desc">Estilo disco de vinilo moderno con reproducción rápida</string>
 </resources>

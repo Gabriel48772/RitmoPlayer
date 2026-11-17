@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="100dp"
+    android:viewportWidth="200"
+    android:viewportHeight="100">
+    <!-- Background Card -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M16,0 L184,0 A16,16 0 0,1 200,16 L200,84 A16,16 0 0,1 184,100 L16,100 A16,16 0 0,1 0,84 L0,16 A16,16 0 0,1 16,0 Z"/>
+    <path
+        android:strokeColor="#1E293B"
+        android:strokeWidth="1.5"
+        android:pathData="M16,1 L184,1 A15,15 0 0,1 199,16 L199,84 A15,15 0 0,1 184,99 L16,99 A15,15 0 0,1 1,84 L1,16 A15,15 0 0,1 16,1 Z"/>
+    <!-- Vinyl Disc Graphic -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M38,15 A20,20 0 1,0 38,55 A20,20 0 1,0 38,15 Z"/>
+    <path
+        android:fillColor="#06B6D4"
+        android:pathData="M38,28 A7,7 0 1,0 38,42 A7,7 0 1,0 38,28 Z"/>
+    <!-- Title Line placeholder -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M68,20 L160,20 A3,3 0 0,1 163,23 L163,24 A3,3 0 0,1 160,27 L68,27 A3,3 0 0,1 65,24 L65,23 A3,3 0 0,1 68,20 Z"/>
+    <!-- Artist Line placeholder -->
+    <path
+        android:fillColor="#64748B"
+        android:pathData="M68,34 L130,34 A2.5,2.5 0 0,1 132.5,36.5 L132.5,37.5 A2.5,2.5 0 0,1 130,40 L68,40 A2.5,2.5 0 0,1 65.5,37.5 L65.5,36.5 A2.5,2.5 0 0,1 68,34 Z"/>
+    <!-- Progress Bar -->
+    <path
+        android:fillColor="#334155"
+        android:pathData="M18,62 L182,62 A2,2 0 0,1 184,64 L184,65 A2,2 0 0,1 182,67 L18,67 A2,2 0 0,1 16,65 L16,64 A2,2 0 0,1 18,62 Z"/>
+    <path
+        android:fillColor="#06B6D4"
+        android:pathData="M18,62 L90,62 A2,2 0 0,1 92,64 L92,65 A2,2 0 0,1 90,67 L18,67 A2,2 0 0,1 16,65 L16,64 A2,2 0 0,1 18,62 Z"/>
+    <!-- Controls Row -->
+    <!-- Rewind -->
+    <path
+        android:fillColor="#CBD5E1"
+        android:pathData="M52,78 L45,83 L52,88 Z M59,78 L52,83 L59,88 Z"/>
+    <!-- Play Circle -->
+    <path
+        android:fillColor="#06B6D4"
+        android:pathData="M100,72 A12,12 0 1,0 100,96 A12,12 0 1,0 100,72 Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M97,79 L105,84 L97,89 Z"/>
+    <!-- Fast Forward -->
+    <path
+        android:fillColor="#CBD5E1"
+        android:pathData="M141,78 L148,83 L141,88 Z M134,78 L141,83 L134,88 Z"/>
+    <!-- Next -->
+    <path
+        android:fillColor="#CBD5E1"
+        android:pathData="M165,78 L172,83 L165,88 Z M172,78 L175,78 L175,88 L172,88 Z"/>
+</vector>
