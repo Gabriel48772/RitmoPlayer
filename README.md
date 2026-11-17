@@ -19,9 +19,11 @@
 - 🎧 **Soporte Universal de Formatos de Audio**:
   - Reproduce sin conversiones: **MP3, FLAC, WAV, AAC, M4A, OGG, OPUS, WMA**.
 
-- ⏪ **Regla Especial de Retraso / Reinicio**:
-  - Si la canción va por la **mitad o más (≥ 50%)**, al presionar el botón de **Retrasar** (o *Anterior*), la canción **se reinicia automáticamente desde el inicio (0:00)** manteniendo la reproducción activa.
-  - Si la canción aún no ha llegado a la mitad, retrocede 10 segundos para un ajuste fino del audio.
+- ⏪ **Reglas Especiales de Retraso / Retroceso**:
+  - **Doble Pulsación (x2 toques en menos de 1.5s)**: Regresa a la **canción anterior** de la lista. Si no posee ninguna canción anterior (por ejemplo, al estar en la primera de la lista), **reproduce automáticamente una canción aleatoria**.
+  - **Pulsación Simple**:
+    - Si la canción va por la **mitad o más (≥ 50%)**, al presionar **Retrasar**, la canción **se reinicia automáticamente desde el inicio (0:00)** manteniendo la reproducción activa.
+    - Si la canción aún no ha llegado a la mitad, retrocede 10 segundos para un ajuste fino del audio.
 
 - 📅 **Orden por Última Fecha de Modificación**:
   - Tu música se organiza de forma automática colocando arriba las canciones **más recientemente agregadas o modificadas** a tu teléfono.
@@ -54,15 +56,23 @@
 Puedes descargar el archivo instalador (.apk) de cualquiera de las siguientes formas:
 
 1. **Descarga Directa desde el Repositorio:**
-   - Haz clic en [**`apk/RitmoPlayer-v1.0.3.apk`** (Versión 1.0.3)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.3.apk) para descargarlo directamente a tu teléfono móvil.
+   - Haz clic en [**`apk/RitmoPlayer-v1.0.4.apk`** (Versión 1.0.4)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.4.apk) para descargarlo directamente a tu teléfono móvil.
 
 2. **O desde la sección de Releases:**
-   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.3.apk`**.
+   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.4.apk`**.
 
 Una vez descargado en tu teléfono móvil:
 - Toca el archivo descargado y presiona **Instalar** (o actualizar).
   *(Si es la primera vez que instalas un APK externo, el sistema Android te solicitará conceder permiso para instalar apps desconocidas).*
 - ¡Abre **RitmoPlayer**, autoriza el acceso a la música y las notificaciones para disfrutar de tus canciones favoritas!
+
+---
+
+### 📝 Notas de la Versión v1.0.4
+- ⏪ **Doble Pulsación en Retroceder (Notificación y App):**
+  - Al presionar **dos veces** el botón de retrasar/retroceder en menos de 1.5 segundos, la aplicación regresa inmediatamente a la **canción anterior** de la lista.
+  - Si estás en la primera canción de la lista (o no posee ninguna anterior), el reproductor selecciona y reproduce una **canción aleatoria**.
+  - Si se presiona una sola vez, se mantiene la regla de reiniciar desde 0:00 si va por la mitad o más (≥ 50%), o retroceder 10 segundos.
 
 ---
 

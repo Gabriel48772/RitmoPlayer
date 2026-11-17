@@ -431,7 +431,7 @@ fun FullPlayerBottomSheet(
                             )
                         }
                         Text(
-                            text = "Retrasar (-10s / Reiniciar >50%)",
+                            text = "Retrasar (-10s / >50% Inicio / x2 Anterior)",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurface
                         )

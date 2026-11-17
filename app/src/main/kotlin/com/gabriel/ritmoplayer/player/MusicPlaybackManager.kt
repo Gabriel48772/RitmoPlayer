@@ -2,6 +2,7 @@ package com.gabriel.ritmoplayer.player
 
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -70,6 +71,9 @@ class MusicPlaybackManager(private val context: Context) {
 
     private val _rewindRestartNotice = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val rewindRestartNotice: SharedFlow<String> = _rewindRestartNotice.asSharedFlow()
+
+    private var lastRewindPressTime: Long = 0L
+    private val DOUBLE_PRESS_INTERVAL_MS = 1500L
 
     private val playerListener = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -169,11 +173,25 @@ class MusicPlaybackManager(private val context: Context) {
     }
 
     /**
-     * Regla explícita del usuario:
-     * "Que cada vez que uno presione para retrasar y la música ya va por la mitad,
-     * la misma se reinicie, la misma música, pero desde el inicio."
+     * Regla del usuario para Retrasar / Retroceder:
+     * 1. Presión doble (dos veces en menos de 1.5s):
+     *    - Regresa a la canción anterior de la lista.
+     *    - Si no posee ninguna canción anterior (ej. primera canción de la lista),
+     *      reproduce una canción aleatoria.
+     * 2. Presión simple:
+     *    - Si la música ya va por la mitad o más (>= 50%), se reinicia la misma música desde el inicio (0:00).
+     *    - Si va por menos de la mitad, se retrasan 10 segundos.
      */
     fun rewind() {
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastRewindPressTime <= DOUBLE_PRESS_INTERVAL_MS) {
+            // Detección de doble presión: regresar a la canción anterior o aleatoria
+            lastRewindPressTime = 0L
+            playPreviousOrRandom()
+            return
+        }
+        lastRewindPressTime = now
+
         val current = exoPlayer.currentPosition
         val total = exoPlayer.duration
         if (total > 0 && current >= (total / 2)) {
@@ -185,6 +203,46 @@ class MusicPlaybackManager(private val context: Context) {
             val target = (current - 10_000L).coerceAtLeast(0L)
             exoPlayer.seekTo(target)
             _currentPosition.value = target
+        }
+        MusicService.startOrUpdate(context)
+    }
+
+    /**
+     * Regresa a la canción anterior de la lista.
+     * Si no posee ninguna canción previa (ej. estamos en la primera de la lista),
+     * reproduce una canción aleatoria.
+     */
+    fun playPreviousOrRandom() {
+        val playlist = _playlist.value
+        val currentIndex = exoPlayer.currentMediaItemIndex
+
+        if (playlist.isEmpty()) return
+
+        if (currentIndex > 0 && currentIndex < playlist.size) {
+            val prevIndex = currentIndex - 1
+            val prevTrack = playlist[prevIndex]
+            _currentTrack.value = prevTrack
+            _currentPosition.value = 0L
+            exoPlayer.seekTo(prevIndex, 0L)
+            exoPlayer.play()
+            _rewindRestartNotice.tryEmit("Canción anterior: ${prevTrack.title}")
+        } else {
+            // Al no poseer ninguna canción previa, reproducir una aleatoria
+            if (playlist.size > 1) {
+                val available = playlist.indices.filter { it != currentIndex }
+                val targetIndex = if (available.isNotEmpty()) available.random() else playlist.indices.random()
+                val randomTrack = playlist[targetIndex]
+                _currentTrack.value = randomTrack
+                _currentPosition.value = 0L
+                exoPlayer.seekTo(targetIndex, 0L)
+                exoPlayer.play()
+                _rewindRestartNotice.tryEmit("Aleatoria: ${randomTrack.title}")
+            } else {
+                exoPlayer.seekTo(0, 0L)
+                exoPlayer.play()
+                _currentPosition.value = 0L
+                _rewindRestartNotice.tryEmit("Reiniciando canción actual")
+            }
         }
         MusicService.startOrUpdate(context)
     }
@@ -214,13 +272,7 @@ class MusicPlaybackManager(private val context: Context) {
             return
         }
 
-        if (exoPlayer.hasPreviousMediaItem()) {
-            exoPlayer.seekToPreviousMediaItem()
-        } else {
-            exoPlayer.seekTo(0L)
-        }
-        exoPlayer.play()
-        MusicService.startOrUpdate(context)
+        playPreviousOrRandom()
     }
 
     fun skipToNext() {
