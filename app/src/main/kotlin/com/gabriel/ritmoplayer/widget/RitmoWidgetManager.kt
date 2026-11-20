@@ -21,7 +21,16 @@ object RitmoWidgetManager {
     private const val KEY_LAST_DURATION = "last_duration"
     private const val KEY_LAST_IS_PLAYING = "last_is_playing"
 
+    private var cachedLastTitle: String? = null
+    private var cachedLastPlaying: Boolean? = null
+
     fun saveLastPlaybackState(context: Context, track: AudioTrack?, isPlaying: Boolean) {
+        if (track?.title == cachedLastTitle && isPlaying == cachedLastPlaying) {
+            return
+        }
+        cachedLastTitle = track?.title
+        cachedLastPlaying = isPlaying
+
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().apply {
             if (track != null) {

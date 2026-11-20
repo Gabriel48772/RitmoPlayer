@@ -11,10 +11,13 @@
 
 ## ✨ Características Principales
 
-- 🔋 **Ahorro Extremo de Batería (Bajo Consumo)**:
-  - Desarrollado con **AndroidX Media3 (ExoPlayer)** y decodificación de audio por hardware en segundo plano (*Audio Offload*).
-  - No mantiene la CPU encendida innecesariamente; el *WakeLock* se libera de inmediato al pausar.
-  - Interfaz oscura optimizada para pantallas **AMOLED** (los píxeles negros no consumen energía).
+- 🔋 **Ahorro Extremo de Batería (Ultra Bajo Consumo)**:
+  - **Decodificación por Hardware Audio Offload (DSP)**: Delega la decodificación de audio directamente al procesador de señal digital (DSP) del teléfono, permitiendo que los núcleos principales de la CPU permanezcan dormidos durante la reproducción.
+  - **Cero Despertares de CPU en Fondo (0 Wakeups)**: Eliminación de sondeos repetitivos; Android y SystemUI calculan el progreso de la música nativamente por hardware mediante `MediaSession` y `PlaybackStateCompat`.
+  - **Detección de Ciclo de Vida**: Cuando la pantalla del teléfono se apaga o sales de la aplicación, se suspenden automáticamente las corrutinas de actualización de interfaz hasta que vuelves a abrirla.
+  - **Optimización de Memoria Flash**: Cero escrituras redundantes a disco (`SharedPreferences`) si el estado de la música no ha cambiado.
+  - **Pausa Automática al Desconectar**: Al desenchufar audífonos o apagar Bluetooth (`AUDIO_BECOMING_NOISY`), la reproducción se detiene al instante evitando consumo accidental en el bolsillo.
+  - **Interfaz AMOLED Puro**: Los píxeles negros en pantallas OLED no consumen energía eléctrica.
 
 - 🎧 **Soporte Universal de Formatos de Audio**:
   - Reproduce sin conversiones: **MP3, FLAC, WAV, AAC, M4A, OGG, OPUS, WMA**.
@@ -73,15 +76,24 @@
 Puedes descargar el archivo instalador (.apk) de cualquiera de las siguientes formas:
 
 1. **Descarga Directa desde el Repositorio:**
-   - Haz clic en [**`apk/RitmoPlayer-v1.0.7.apk`** (Versión 1.0.7)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.7.apk) para descargarlo directamente a tu teléfono móvil.
+   - Haz clic en [**`apk/RitmoPlayer-v1.0.8.apk`** (Versión 1.0.8)](https://github.com/Gabriel48772/RitmoPlayer/raw/main/apk/RitmoPlayer-v1.0.8.apk) para descargarlo directamente a tu teléfono móvil.
 
 2. **O desde la sección de Releases:**
-   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.7.apk`**.
+   - Ve a **[Releases](https://github.com/Gabriel48772/RitmoPlayer/releases)** y descarga **`RitmoPlayer-v1.0.8.apk`**.
 
 Una vez descargado en tu teléfono móvil:
 - Toca el archivo descargado y presiona **Instalar** (o actualizar).
   *(Si es la primera vez que instalas un APK externo, el sistema Android te solicitará conceder permiso para instalar apps desconocidas).*
 - ¡Abre **RitmoPlayer**, autoriza el acceso a la música y las notificaciones para disfrutar de tus canciones favoritas!
+
+---
+
+### 📝 Notas de la Versión v1.0.8
+- 🔋 **Optimización Extrema de Batería y Rendimiento:**
+  - **Hardware Audio Offload Activo:** Habilitada la preferencia de audio offload en ExoPlayer para procesar la música a través del coprocesador de audio DSP, manteniendo la CPU en modo de reposo profundo.
+  - **Eliminación de Polling en Segundo Plano:** Se removieron los despertares periódicos de CPU (`startForegroundService`) que forzaban al teléfono a despertar cada 2 segundos; la barra de notificación y la pantalla de bloqueo ahora calculan su progreso por hardware mediante `PlaybackStateCompat`.
+  - **Suspensión Inteligente de UI en Fondo:** Al apagar la pantalla o minimizar la app, se pausan las corrutinas de rastreo de posición en pantalla, ahorrando miles de ciclos de procesador por hora.
+  - **Zero Disk Thrashing:** Cero escrituras innecesarias en almacenamiento (`SharedPreferences`) a menos que cambie la pista o el estado de reproducción.
 
 ---
 

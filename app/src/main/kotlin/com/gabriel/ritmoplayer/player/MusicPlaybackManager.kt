@@ -8,8 +8,10 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.exoplayer.ExoPlayer
 import com.gabriel.ritmoplayer.MainActivity
+import com.gabriel.ritmoplayer.RitmoApplication
 import com.gabriel.ritmoplayer.model.AudioTrack
 import com.gabriel.ritmoplayer.model.RepeatMode
 import com.gabriel.ritmoplayer.scanner.AudioScanner
@@ -44,6 +46,7 @@ class MusicPlaybackManager(private val context: Context) {
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
             .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .setAllowedCapturePolicy(C.ALLOW_CAPTURE_BY_NONE)
             .build()
 
         ExoPlayer.Builder(context)
@@ -55,6 +58,14 @@ class MusicPlaybackManager(private val context: Context) {
             .build().apply {
                 addListener(playerListener)
                 repeatMode = Player.REPEAT_MODE_ALL
+                val offloadPrefs = TrackSelectionParameters.AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                    .setIsGaplessSupportRequired(false)
+                    .setIsSpeedChangeSupportRequired(false)
+                    .build()
+                trackSelectionParameters = trackSelectionParameters.buildUpon()
+                    .setAudioOffloadPreferences(offloadPrefs)
+                    .build()
             }
     }
 
@@ -91,7 +102,10 @@ class MusicPlaybackManager(private val context: Context) {
             MusicService.startOrUpdate(context)
             if (isPlaying) {
                 cancelInactivityTimer()
-                startProgressTracker()
+                val app = context.applicationContext as? RitmoApplication
+                if (app?.isAppInForeground == true) {
+                    startProgressTracker()
+                }
             } else {
                 stopProgressTracker()
                 startInactivityTimer()
@@ -370,19 +384,25 @@ class MusicPlaybackManager(private val context: Context) {
         }
     }
 
+    fun onAppForeground() {
+        if (_isPlaying.value) {
+            _currentPosition.value = exoPlayer.currentPosition
+            startProgressTracker()
+        }
+    }
+
+    fun onAppBackground() {
+        // Ahorro de batería: detener polling de posición cuando la pantalla está apagada o la app en fondo
+        stopProgressTracker()
+    }
+
     private fun startProgressTracker() {
         stopProgressTracker()
         progressJob = scope.launch {
-            var tick = 0
             while (isActive && exoPlayer.isPlaying) {
                 _currentPosition.value = exoPlayer.currentPosition
                 _duration.value = exoPlayer.duration.coerceAtLeast(0L)
-                tick++
-                // Update notification progress every 2 seconds
-                if (tick % 5 == 0) {
-                    MusicService.startOrUpdate(context)
-                }
-                delay(400)
+                delay(1000)
             }
         }
     }
