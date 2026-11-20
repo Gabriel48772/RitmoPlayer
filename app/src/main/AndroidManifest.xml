@@ -37,11 +37,24 @@
             </intent-filter>
         </activity>
 
-        <!-- Background Music Service for ExoPlayer -->
+        <!-- Background Music Service for ExoPlayer and Headphone Media Buttons -->
         <service
             android:name=".service.MusicService"
-            android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </service>
+
+        <!-- Headphone & Bluetooth Media Button Receiver -->
+        <receiver
+            android:name="androidx.media.session.MediaButtonReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
 
         <!-- FileProvider for installing downloaded APK updates from GitHub -->
         <provider

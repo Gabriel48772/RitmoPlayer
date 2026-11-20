@@ -9,8 +9,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.gabriel.ritmoplayer.MainActivity
 import com.gabriel.ritmoplayer.model.AudioTrack
 import com.gabriel.ritmoplayer.model.RepeatMode
+import com.gabriel.ritmoplayer.scanner.AudioScanner
 import com.gabriel.ritmoplayer.service.MusicService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +31,14 @@ class MusicPlaybackManager(private val context: Context) {
 
     private val scope = CoroutineScope(Dispatchers.Main + Job())
     private var progressJob: Job? = null
+    private var inactivityJob: Job? = null
+
+    // 2 horas de inactividad automática (7,200,000 milisegundos)
+    private val INACTIVITY_TIMEOUT_MS = 2 * 60 * 60 * 1000L
+
+    init {
+        startInactivityTimer()
+    }
 
     val exoPlayer: ExoPlayer by lazy {
         val audioAttributes = AudioAttributes.Builder()
@@ -80,9 +90,11 @@ class MusicPlaybackManager(private val context: Context) {
             _isPlaying.value = isPlaying
             MusicService.startOrUpdate(context)
             if (isPlaying) {
+                cancelInactivityTimer()
                 startProgressTracker()
             } else {
                 stopProgressTracker()
+                startInactivityTimer()
             }
         }
 
@@ -165,16 +177,7 @@ class MusicPlaybackManager(private val context: Context) {
             exoPlayer.pause()
         } else {
             if (_playlist.value.isEmpty()) {
-                scope.launch {
-                    try {
-                        val tracks = com.gabriel.ritmoplayer.scanner.AudioScanner(context).scanMediaStore()
-                        if (tracks.isNotEmpty()) {
-                            setPlaylist(tracks, tracks.first())
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
+                startPlaylistFromFavoritesOrStorage()
                 return
             }
             if (exoPlayer.playbackState == Player.STATE_ENDED) {
@@ -183,6 +186,46 @@ class MusicPlaybackManager(private val context: Context) {
             exoPlayer.play()
         }
         MusicService.startOrUpdate(context)
+    }
+
+    /**
+     * Inicia el playlist de canciones automáticamente.
+     * Si el usuario tiene una carpeta favorita configurada, carga la música de esa carpeta.
+     * De lo contrario, carga todas las canciones disponibles y reproduce de inmediato.
+     */
+    fun startPlaylistFromFavoritesOrStorage() {
+        if (_isPlaying.value) return
+
+        if (_playlist.value.isNotEmpty()) {
+            if (exoPlayer.playbackState == Player.STATE_ENDED) {
+                exoPlayer.seekTo(0L)
+            }
+            exoPlayer.play()
+            MusicService.startOrUpdate(context)
+            return
+        }
+
+        scope.launch {
+            try {
+                val scanner = AudioScanner(context)
+                val allTracks = scanner.scanMediaStore()
+                val prefs = context.getSharedPreferences("ritmo_prefs", Context.MODE_PRIVATE)
+                val favoriteFolder = prefs.getString("favorite_folder", null)
+
+                val targetTracks = if (!favoriteFolder.isNullOrBlank()) {
+                    val filtered = allTracks.filter { it.folderName.equals(favoriteFolder, ignoreCase = true) }
+                    if (filtered.isNotEmpty()) filtered else allTracks
+                } else {
+                    allTracks
+                }
+
+                if (targetTracks.isNotEmpty()) {
+                    setPlaylist(targetTracks, targetTracks.first())
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     /**
@@ -349,7 +392,46 @@ class MusicPlaybackManager(private val context: Context) {
         progressJob = null
     }
 
+    fun startInactivityTimer() {
+        inactivityJob?.cancel()
+        inactivityJob = scope.launch {
+            delay(INACTIVITY_TIMEOUT_MS)
+            closeAppOnInactivity()
+        }
+    }
+
+    fun cancelInactivityTimer() {
+        inactivityJob?.cancel()
+        inactivityJob = null
+    }
+
+    /**
+     * Cierra la aplicación automáticamente tras 2 horas sin reproducir música.
+     * Detiene el servicio en segundo plano, cancela notificaciones y cierra la interfaz.
+     */
+    private fun closeAppOnInactivity() {
+        try {
+            exoPlayer.pause()
+            _isPlaying.value = false
+            stopProgressTracker()
+
+            val stopIntent = Intent(context, MusicService::class.java).apply {
+                action = MusicService.ACTION_STOP
+            }
+            context.startService(stopIntent)
+
+            val exitIntent = Intent(context, MainActivity::class.java).apply {
+                action = MainActivity.ACTION_EXIT_APP
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            context.startActivity(exitIntent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     fun release() {
+        cancelInactivityTimer()
         stopProgressTracker()
         try {
             val intent = Intent(context, MusicService::class.java).apply {

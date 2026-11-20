@@ -9,8 +9,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
+import android.view.KeyEvent
 import androidx.core.app.NotificationCompat
+import androidx.media.session.MediaButtonReceiver
 import com.gabriel.ritmoplayer.MainActivity
 import com.gabriel.ritmoplayer.R
 import com.gabriel.ritmoplayer.RitmoApplication
@@ -47,19 +54,155 @@ class MusicService : Service() {
         }
     }
 
+    private lateinit var mediaSession: MediaSessionCompat
+
+    // Headphone multi-click detection (1 = Play/Pause, 2 = Next, 3 = Previous)
+    private var headsetClickCount = 0
+    private val headsetHandler = Handler(Looper.getMainLooper())
+    private val headsetRunnable = Runnable {
+        val app = application as? RitmoApplication
+        val playback = app?.playbackManager
+        when (headsetClickCount) {
+            1 -> playback?.togglePlayPause()
+            2 -> playback?.skipToNext()
+            3 -> playback?.skipToPrevious()
+            else -> playback?.togglePlayPause()
+        }
+        headsetClickCount = 0
+    }
+
+    private fun handleHeadsetHookClick() {
+        headsetClickCount++
+        headsetHandler.removeCallbacks(headsetRunnable)
+        if (headsetClickCount >= 3) {
+            headsetHandler.post(headsetRunnable)
+        } else {
+            headsetHandler.postDelayed(headsetRunnable, 350)
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        initMediaSession()
+    }
+
+    private fun initMediaSession() {
+        val app = application as? RitmoApplication
+
+        mediaSession = MediaSessionCompat(this, "RitmoPlayerSession").apply {
+            setFlags(
+                MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
+                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+            )
+
+            setCallback(object : MediaSessionCompat.Callback() {
+                override fun onPlay() {
+                    app?.playbackManager?.togglePlayPause()
+                }
+
+                override fun onPause() {
+                    app?.playbackManager?.togglePlayPause()
+                }
+
+                override fun onSkipToNext() {
+                    app?.playbackManager?.skipToNext()
+                }
+
+                override fun onSkipToPrevious() {
+                    app?.playbackManager?.skipToPrevious()
+                }
+
+                override fun onFastForward() {
+                    app?.playbackManager?.fastForward()
+                }
+
+                override fun onRewind() {
+                    app?.playbackManager?.rewind()
+                }
+
+                override fun onStop() {
+                    app?.playbackManager?.exoPlayer?.pause()
+                    stopForegroundService()
+                }
+
+                override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
+                    val keyEvent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        mediaButtonEvent?.getParcelableExtra(Intent.EXTRA_KEY_EVENT, KeyEvent::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        mediaButtonEvent?.getParcelableExtra(Intent.EXTRA_KEY_EVENT)
+                    }
+
+                    if (keyEvent != null && keyEvent.action == KeyEvent.ACTION_DOWN) {
+                        when (keyEvent.keyCode) {
+                            KeyEvent.KEYCODE_HEADSETHOOK,
+                            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
+                                handleHeadsetHookClick()
+                                return true
+                            }
+                            KeyEvent.KEYCODE_MEDIA_PLAY -> {
+                                if (app?.playbackManager?.isPlaying?.value == false) {
+                                    app.playbackManager.togglePlayPause()
+                                }
+                                return true
+                            }
+                            KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                                if (app?.playbackManager?.isPlaying?.value == true) {
+                                    app.playbackManager.togglePlayPause()
+                                }
+                                return true
+                            }
+                            KeyEvent.KEYCODE_MEDIA_NEXT -> {
+                                app?.playbackManager?.skipToNext()
+                                return true
+                            }
+                            KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
+                                app?.playbackManager?.skipToPrevious()
+                                return true
+                            }
+                            KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
+                                app?.playbackManager?.fastForward()
+                                return true
+                            }
+                            KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                                app?.playbackManager?.rewind()
+                                return true
+                            }
+                        }
+                    }
+                    return super.onMediaButtonEvent(mediaButtonEvent)
+                }
+            })
+
+            val mediaButtonReceiverIntent = Intent(Intent.ACTION_MEDIA_BUTTON, null, this@MusicService, MediaButtonReceiver::class.java)
+            val mediaButtonPendingIntent = PendingIntent.getBroadcast(
+                this@MusicService,
+                0,
+                mediaButtonReceiverIntent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
+            setMediaButtonReceiver(mediaButtonPendingIntent)
+            isActive = true
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val app = application as? RitmoApplication
         val playback = app?.playbackManager
 
+        MediaButtonReceiver.handleIntent(mediaSession, intent)
+
         when (intent?.action) {
-            ACTION_PLAY_PAUSE -> playback?.togglePlayPause()
+            ACTION_PLAY_PAUSE -> {
+                if (playback?.isPlaying?.value == false && playback.playlist.value.isEmpty()) {
+                    playback.startPlaylistFromFavoritesOrStorage()
+                } else {
+                    playback?.togglePlayPause()
+                }
+            }
             ACTION_REWIND -> playback?.rewind()
             ACTION_FAST_FORWARD -> playback?.fastForward()
             ACTION_NEXT -> playback?.skipToNext()
@@ -80,6 +223,9 @@ class MusicService : Service() {
         // Update home screen widgets in real time
         RitmoWidgetManager.updateAllWidgets(this, track, isPlaying, currentPosition, duration)
 
+        // Update MediaSession state for Bluetooth & Headphone controls
+        updateMediaSessionState(track, isPlaying, currentPosition, duration)
+
         val notification = buildNotification(track, isPlaying, currentPosition, duration)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -93,6 +239,42 @@ class MusicService : Service() {
         }
 
         return START_STICKY
+    }
+
+    private fun updateMediaSessionState(
+        track: AudioTrack?,
+        isPlaying: Boolean,
+        currentPos: Long,
+        duration: Long
+    ) {
+        if (!::mediaSession.isInitialized) return
+
+        val state = if (isPlaying) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
+        val actions = PlaybackStateCompat.ACTION_PLAY or
+                PlaybackStateCompat.ACTION_PAUSE or
+                PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                PlaybackStateCompat.ACTION_FAST_FORWARD or
+                PlaybackStateCompat.ACTION_REWIND or
+                PlaybackStateCompat.ACTION_SEEK_TO
+
+        val playbackState = PlaybackStateCompat.Builder()
+            .setActions(actions)
+            .setState(state, currentPos, 1.0f)
+            .build()
+        mediaSession.setPlaybackState(playbackState)
+
+        if (track != null) {
+            val metadata = MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.durationMs)
+                .build()
+            mediaSession.setMetadata(metadata)
+        }
+        mediaSession.isActive = true
     }
 
     private fun buildNotification(
@@ -189,9 +371,10 @@ class MusicService : Service() {
             nextIntent
         )
 
-        // MediaStyle shows actions in compact notification view
+        // MediaStyle shows actions in compact notification view and links to media session for Bluetooth/lockscreen
         builder.setStyle(
             androidx.media.app.NotificationCompat.MediaStyle()
+                .setMediaSession(mediaSession.sessionToken)
                 .setShowActionsInCompactView(0, 1, 2)
         )
 
@@ -223,4 +406,14 @@ class MusicService : Service() {
             notificationManager.createNotificationChannel(channel)
         }
     }
+
+    override fun onDestroy() {
+        headsetHandler.removeCallbacksAndMessages(null)
+        if (::mediaSession.isInitialized) {
+            mediaSession.isActive = false
+            mediaSession.release()
+        }
+        super.onDestroy()
+    }
 }
+

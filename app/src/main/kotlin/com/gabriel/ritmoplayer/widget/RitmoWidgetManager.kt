@@ -70,6 +70,22 @@ object RitmoWidgetManager {
         )
     }
 
+    /**
+     * Activa y abre la aplicación iniciando automáticamente la reproducción del playlist.
+     */
+    private fun getPlayFromWidgetPendingIntent(context: Context, requestCode: Int): PendingIntent {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            action = MainActivity.ACTION_PLAY_FROM_WIDGET
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        return PendingIntent.getActivity(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
     // -------------------------------------------------------------
     // Compact Widget (4x1)
     // -------------------------------------------------------------
@@ -96,9 +112,15 @@ object RitmoWidgetManager {
             R.id.btn_compact_rewind,
             getServicePendingIntent(context, MusicService.ACTION_REWIND, 101)
         )
+        // Al estar en pausa, presionar Play activa la aplicación e inicia el playlist
+        val compactPlayIntent = if (isPlaying) {
+            getServicePendingIntent(context, MusicService.ACTION_PLAY_PAUSE, 102)
+        } else {
+            getPlayFromWidgetPendingIntent(context, 102)
+        }
         views.setOnClickPendingIntent(
             R.id.btn_compact_play_pause,
-            getServicePendingIntent(context, MusicService.ACTION_PLAY_PAUSE, 102)
+            compactPlayIntent
         )
         views.setOnClickPendingIntent(
             R.id.btn_compact_next,
@@ -150,9 +172,15 @@ object RitmoWidgetManager {
             R.id.btn_card_rewind,
             getServicePendingIntent(context, MusicService.ACTION_REWIND, 201)
         )
+        // Al estar en pausa, presionar Play activa la aplicación e inicia el playlist
+        val cardPlayIntent = if (isPlaying) {
+            getServicePendingIntent(context, MusicService.ACTION_PLAY_PAUSE, 202)
+        } else {
+            getPlayFromWidgetPendingIntent(context, 202)
+        }
         views.setOnClickPendingIntent(
             R.id.btn_card_play_pause,
-            getServicePendingIntent(context, MusicService.ACTION_PLAY_PAUSE, 202)
+            cardPlayIntent
         )
         views.setOnClickPendingIntent(
             R.id.btn_card_fast_forward,
@@ -187,9 +215,15 @@ object RitmoWidgetManager {
         views.setOnClickPendingIntent(R.id.widget_circle_container, openApp)
         views.setOnClickPendingIntent(R.id.widget_circle_icon, openApp)
 
+        // Al estar en pausa, presionar Play activa la aplicación e inicia el playlist
+        val circlePlayIntent = if (isPlaying) {
+            getServicePendingIntent(context, MusicService.ACTION_PLAY_PAUSE, 301)
+        } else {
+            getPlayFromWidgetPendingIntent(context, 301)
+        }
         views.setOnClickPendingIntent(
             R.id.btn_circle_center_play,
-            getServicePendingIntent(context, MusicService.ACTION_PLAY_PAUSE, 301)
+            circlePlayIntent
         )
         views.setOnClickPendingIntent(
             R.id.btn_circle_rewind,
